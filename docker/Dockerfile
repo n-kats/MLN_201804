@@ -5,7 +5,7 @@ RUN set -ex \
   && apt-get install -y --no-install-recommends \
     software-properties-common \
     language-pack-ja-base language-pack-ja \
-    sudo xvfb ffmpeg python3-opengl zlib1g-dev cmake \
+    xvfb ffmpeg python3-opengl zlib1g-dev cmake \
   && add-apt-repository -y ppa:jonathonf/python-3.6 \
   && apt-get update \
   && apt-get install -y \
@@ -24,27 +24,12 @@ RUN ln -sf /usr/bin/python3.6 /usr/bin/python3 \
   && ln -sf /usr/bin/python3.6 /usr/bin/python
 
 RUN python -m pip install -U pip \
-  && pip install -U \
+  && pip install -U --no-cache-dir \
     wheel setuptools \
     numpy \
-    pillow \
-    scipy \
-    scikit-learn \
-    tensorflow \
     gym \
-    "gym[atari]"
-
-WORKDIR /
-
-ENV USERNAME developer
-RUN useradd -m $USERNAME \
-  && echo "$USERNAME:$USERNAME" | chpasswd \
-  && usermod --shell /bin/bash $USERNAME \
-  && usermod -aG sudo $USERNAME \
-  && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$USERNAME \
-  && chmod 0440 /etc/sudoers.d/$USERNAME \
-  && usermod  --uid 1000 $USERNAME \
-  && groupmod --gid 1000 $USERNAME
-# Replace 1000 with your user/group id
+    "gym[atari]" \
+    chainerrl
 
 WORKDIR /work
+ENTRYPOINT xvfb-run -s "-screen 0 1400x900x24" bash
