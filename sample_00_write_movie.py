@@ -27,6 +27,7 @@ def main():
         if done:
             break
         time.sleep(0.1)
+    env.env.close()
     env.close()
 
 

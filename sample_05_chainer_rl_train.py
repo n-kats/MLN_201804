@@ -15,13 +15,13 @@ def main():
     agent = get_agent(env)
     train(agent, env)
     test(agent, env)
-    agent.save('agent')
+    agent.save('_agent')
 
 
 def get_env():
     env = gym.make('CartPole-v0')
-    env._max_episode_steps = 10**100
-    env._max_episode_seconds = 10**100
+    env._max_episode_steps = 10 ** 100
+    env._max_episode_seconds = 10 ** 100
     return env
 
 
