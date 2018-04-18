@@ -4,6 +4,12 @@ ChainerRLを用いた例
 オリジナルはChaienrRLのサンプル
 https://github.com/chainer/chainerrl/blob/master/examples/quickstart/quickstart.ipynb
 
+簡単にいじれるものは
+* ステップ数
+* 学習率
+* 割引率
+* ネットワーク
+
 """
 import chainer
 import chainer.functions as F
@@ -19,6 +25,7 @@ def main():
     agent = get_agent(env)
     train(agent, env)
     agent.save('_agent')  # 保存
+    env.close()
 
     env_test = get_env(is_train=False)
     test(agent, env_test)  # 訓練した結果でagentを動かす
@@ -93,9 +100,8 @@ class QFunction(chainer.Chain):
 
 def train(agent, env):
     # train
-    n_episodes = 2000
-    # max_episode_len = 200
-    max_episode_len = 2000
+    n_episodes = 200  # 訓練の回数
+    max_episode_len = 2000  # このステップ数で一旦終了させる
     for i in range(1, n_episodes + 1):
         obs = env.reset()
         reward = 0
