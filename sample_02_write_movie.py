@@ -12,7 +12,7 @@ def get_env():
     # env = gym.make('SpaceInvaders-v0')
     return Monitor(
         env=env,
-        directory="_output",
+        directory="_output",  # _outputに動画が出力される
         force=True
     )
 
@@ -27,7 +27,7 @@ def main():
         if done:
             break
         time.sleep(0.1)
-    env.env.close()
+    env.env.close()  # Monitorの方のcloseで元のenvがcloseできない
     env.close()
 
 

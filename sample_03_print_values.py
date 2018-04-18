@@ -13,8 +13,8 @@ from gym.wrappers import Monitor
 
 
 def get_env():
-    env_name = 'CartPole-v0'  # 倒立振子
-    # env_name = 'Pendulum-v0'  # 振り子
+    env_name = 'CartPole-v0'
+    # env_name = 'Pendulum-v0'
     env = gym.make(env_name)
     return Monitor(
         env=env,

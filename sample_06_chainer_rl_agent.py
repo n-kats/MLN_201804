@@ -1,12 +1,16 @@
 """
-original
+ChainerRLを用いた例
+
+オリジナルはChaienrRLのサンプル
 https://github.com/chainer/chainerrl/blob/master/examples/quickstart/quickstart.ipynb
+
 """
 import chainer
 import chainer.functions as F
 import chainer.links as L
 import chainerrl
 import gym
+from gym.wrappers import Monitor
 import numpy as np
 
 
@@ -14,15 +18,26 @@ def main():
     env = get_env()
     agent = get_agent(env)
     train(agent, env)
-    test(agent, env)
-    agent.save('_agent')
+    agent.save('_agent')  # 保存
+
+    env_test = get_env(is_train=False)
+    test(agent, env_test)  # 訓練した結果でagentを動かす
 
 
-def get_env():
+def get_env(is_train=True):
     env = gym.make('CartPole-v0')
+    # 最大ステップ数を実質取り除く
     env._max_episode_steps = 10 ** 100
     env._max_episode_seconds = 10 ** 100
-    return env
+
+    if is_train:
+        return env  # 訓練時は動画を出力しない
+
+    return Monitor(
+        env=env,
+        directory="_output",
+        force=True
+    )
 
 
 def get_agent(env):
@@ -32,6 +47,7 @@ def get_agent(env):
     optimizer = chainer.optimizers.Adam(eps=1e-3)
     optimizer.setup(q_func)
 
+    # 割引率
     gamma = 0.95
 
     # epsilon-greedyの設定
@@ -49,15 +65,19 @@ def get_agent(env):
     def phi(x):
         return x.astype(np.float32, copy=False)
 
-    agent = chainerrl.agents.DoubleDQN(
+    agent = chainerrl.agents.DQN(
         q_func, optimizer, replay_buffer,
         gamma, explorer,
         replay_start_size=500, update_interval=1,
-        target_update_interval=100, phi=phi)
+        target_update_interval=100, phi=phi
+    )
     return agent
 
 
 class QFunction(chainer.Chain):
+    """
+    Q^*をDNNを使って近似する
+    """
     def __init__(self, obs_size, n_actions, n_hidden_channels=50):
         super().__init__()
         with self.init_scope():
@@ -83,15 +103,17 @@ def train(agent, env):
         sum_of_rewards = 0
         for _ in range(max_episode_len):
             env.render()
-            action = agent.act_and_train(obs, reward)  # 訓練してくれる便利関数
+            action = agent.act_and_train(obs, reward)  # 訓練
             obs, reward, done, _ = env.step(action)
             sum_of_rewards += reward
             if done:
                 break
         if i % 10 == 0:
-            print('episode:', i,
-                  'Rewards:', sum_of_rewards,
-                  'statistics:', agent.get_statistics())
+            print(
+                'episode:', i,
+                'Rewards:', sum_of_rewards,
+                'statistics:', agent.get_statistics()
+            )
         agent.stop_episode_and_train(obs, reward, done)
 
 
